@@ -202,20 +202,20 @@ class Pet
         $insert_stmt->bindParam(":petid", $json['petid']);
         $insert_stmt->bindParam(":bdate", $json['bdate']);
         $insert_stmt->bindParam(":cdate", $json['cdate']);
-        $insert_stmt->execute();
+        $res = $insert_stmt->execute();
 
-        if ($insert_stmt->rowCount() > 0) {
-            echo json_encode(array('success' => 'Breed date data added successfully'));
-        } else {
-            echo json_encode(array('error' => 'Failed to add breed date data'));
-        }
+       if($res){
+        echo json_encode("1");
+       }else{
+        echo json_encode("0");
+       }
     }
 
     function getBreedData($json)
     {
         include ("conn.php");
         $json = json_decode($json, true);
-        $select_sql = "SELECT `id`, `btade`, `cdate` FROM `breed` WHERE `petid` = :pet_id";
+        $select_sql = "SELECT `id`, `bdate`, `cdate` FROM `breed` WHERE `petid` = :pet_id";
         $select_stmt = $conn->prepare($select_sql);
         $select_stmt->bindParam(":pet_id", $json["pet_id"]);
         $select_stmt->execute();
@@ -227,7 +227,6 @@ class Pet
             echo json_encode(array('error' => 'Breeding data not found'));
         }
     }
-
 
 
 }
