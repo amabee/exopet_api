@@ -57,10 +57,11 @@ class Pet
         $json = json_decode($json, true);
 
         // Update pet in the database
-        $update_sql = "UPDATE `pets` SET `petname` = :new_petname, `pettype` = :new_pettype WHERE `id` = :pet_id";
+        $update_sql = "UPDATE `pets` SET `petname` = :new_petname, `petspecies` = :new_petspecies, `pettype` = :new_pettype WHERE `id` = :pet_id";
         $update_stmt = $conn->prepare($update_sql);
         $update_stmt->bindParam(":pet_id", $json['pet_id']);
         $update_stmt->bindParam(":new_petname", $json['new_petname']);
+        $update_stmt->bindParam(":new_petspecies", $json['new_petspecies']);
         $update_stmt->bindParam(":new_pettype", $json['new_pettype']);
         $update_stmt->execute();
 
@@ -96,9 +97,10 @@ class Pet
         include ("conn.php");
         $json = json_decode($json, true);
 
-        $insert_sql = "INSERT INTO `pets` (`petname`, `pettype`) VALUES (:petname, :pettype)";
+        $insert_sql = "INSERT INTO `pets` (`petname`, `petspecies`, `pettype`) VALUES (:petname, :petspecies, :pettype)";
         $insert_stmt = $conn->prepare($insert_sql);
         $insert_stmt->bindParam(":petname", $json['petname']);
+        $insert_stmt->bindParam(":petspecies", $json['petspecies']);
         $insert_stmt->bindParam(":pettype", $json['pettype']);
         $insert_stmt->execute();
 
@@ -190,7 +192,41 @@ class Pet
             echo json_encode(array('error' => 'Shedding data not found'));
         }
     }
+    function addBreedData($json)
+    {
+        include ("conn.php");
+        $json = json_decode($json, true);
 
+        $insert_sql = "INSERT INTO `breed` (`petid`, `bdate`, `cdate`) VALUES (:petid, :bdate, :cdate)";
+        $insert_stmt = $conn->prepare($insert_sql);
+        $insert_stmt->bindParam(":petid", $json['petid']);
+        $insert_stmt->bindParam(":bdate", $json['bdate']);
+        $insert_stmt->bindParam(":cdate", $json['cdate']);
+        $insert_stmt->execute();
+
+        if ($insert_stmt->rowCount() > 0) {
+            echo json_encode(array('success' => 'Breed date data added successfully'));
+        } else {
+            echo json_encode(array('error' => 'Failed to add breed date data'));
+        }
+    }
+
+    function getBreedData($json)
+    {
+        include ("conn.php");
+        $json = json_decode($json, true);
+        $select_sql = "SELECT `id`, `btade`, `cdate` FROM `breed` WHERE `petid` = :pet_id `bdate` = :bdate, `cdate` ' :cdate";
+        $select_stmt = $conn->prepare($select_sql);
+        $select_stmt->bindParam(":pet_id", $json["pet_id"]);
+        $select_stmt->execute();
+
+        if ($select_stmt->rowCount() > 0) {
+            $shedding_data = $select_stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($shedding_data);
+        } else {
+            echo json_encode(array('error' => 'Breeding data not found'));
+        }
+    }
 
 }
 
@@ -234,6 +270,12 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" || $_SERVER["REQUEST_METHOD"] == "POST")
             case 'addlastshed':
                 echo $api->addShedding($json);
                 break;
+                case 'getbreed':
+                    echo $api->getSheddingData($json);
+                    break;
+                case 'addbreed':
+                    echo $api->addShedding($json);
+                    break;
             default:
                 echo json_encode(["error" => "Invalid operation"]);
                 break;
