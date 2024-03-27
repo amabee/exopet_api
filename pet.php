@@ -215,7 +215,7 @@ class Pet
     {
         include ("conn.php");
         $json = json_decode($json, true);
-        $select_sql = "SELECT `id`, `btade`, `cdate` FROM `breed` WHERE `petid` = :pet_id `bdate` = :bdate, `cdate` ' :cdate";
+        $select_sql = "SELECT `id`, `btade`, `cdate` FROM `breed` WHERE `petid` = :pet_id";
         $select_stmt = $conn->prepare($select_sql);
         $select_stmt->bindParam(":pet_id", $json["pet_id"]);
         $select_stmt->execute();
@@ -228,6 +228,8 @@ class Pet
         }
     }
 
+
+
 }
 
 
@@ -235,7 +237,7 @@ class Pet
 $api = new Pet();
 
 if ($_SERVER["REQUEST_METHOD"] == "GET" || $_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset ($_REQUEST['operation']) && isset ($_REQUEST['json'])) {
+    if (isset($_REQUEST['operation']) && isset($_REQUEST['json'])) {
         $operation = $_REQUEST['operation'];
         $json = $_REQUEST['json'];
 
@@ -270,12 +272,12 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" || $_SERVER["REQUEST_METHOD"] == "POST")
             case 'addlastshed':
                 echo $api->addShedding($json);
                 break;
-                case 'getbreed':
-                    echo $api->getSheddingData($json);
-                    break;
-                case 'addbreed':
-                    echo $api->addShedding($json);
-                    break;
+            case 'getbreed':
+                echo $api->getBreedData($json);
+                break;
+            case 'addbreed':
+                echo $api->addBreedData($json);
+                break;
             default:
                 echo json_encode(["error" => "Invalid operation"]);
                 break;
